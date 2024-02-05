@@ -4,45 +4,51 @@ module Exercise
       # Использовать стандартные функции массива для решения задач нельзя.
       # Использовать свои написанные функции для реализации следующих - можно.
       # Написать свою функцию my_each
-      def my_each(key = 0, &block)
-        return self if key == length
 
-        yield(self[key])
-        my_each(key + 1, &block)
+
+      # В первую очередь нужно реализовать базовый итератор для each и reduce.
+      # Затем, используя reduce, реализовать map и compact.
+
+      # После завершения убедитесь, что тесты проходят, ошибок линтера нет, все закоммитьте,
+      # создайте пулреквест в СВОЙ репозиторий, приложите ссылку на сайте обучения.
+
+
+      def iterator(index = 0, &block)
+        return self if index == length
+
+        yield(self[index])
+        iterator(index + 1, &block)
       end
 
-      # Написать свою функцию my_map
-      def my_map(result = self.class.new, key = 0, &block)
-        return result if key == length
-
-        result << yield(self[key])
-        my_map(result, key + 1, &block)
-      end
-
-      # Написать свою функцию my_compact
-      def my_compact
-        result = self.class.new
-        my_each { |key| result << key unless key.nil? }
-        result
+      def my_each(&block)
+        iterator(&block)
       end
 
       # Написать свою функцию my_reduce
       def my_reduce(*args)
-        if block_given?
-          acc, operator = args
-        else
-          operator, acc = args
-        end
+        block_given? ? (acc, operator = args) : (operator, acc = args)
 
-        if acc.nil?
-          acc = self[0]
-          key = 1
-        else
-          key = 0
-        end
+        index = 1
+        acc.nil? ? acc = self[0] : index = 0
 
-        my_each(key) { |element| acc = operator.nil? ? yield(acc, element) : operator.to_proc.call(acc, element) }
+        iterator(index) { |element| acc = operator.nil? ? yield(acc, element) : operator.to_proc.call(acc, element) }
         acc
+      end
+
+      # Написать свою функцию my_map
+      def my_map(&block)
+        my_reduce(self.class.new) do |acc, element|
+          acc << block.call(element)
+          acc
+        end
+      end
+
+      # Написать свою функцию my_compact
+      def my_compact
+        my_reduce(self.class.new) do |acc, element|
+          acc << element unless element.nil?
+          acc
+        end
       end
     end
   end
