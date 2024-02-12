@@ -1,12 +1,8 @@
 module Exercise
   module Arrays
     class << self
-      def find_max_array_value(array, max = nil, key = 0)
-        return max if key == array.size
-
-        max = array[0] if max.nil?
-        max = array[key] if array[key] > max
-        find_max_array_value(array, max, key + 1)
+      def find_max_array_value(array, _max = nil, _key = 0)
+        array.reduce(array[0]) { |acc, element| element > acc ? element : acc }
       end
 
       def replace(array)
